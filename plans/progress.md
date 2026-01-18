@@ -121,3 +121,30 @@
 - ✅ TypeScript passes
 - ✅ Tests pass (121 tests: 74 existing + 47 new)
 - ✅ Lint passes
+---
+
+### 2026-01-19 — html-import-modal-005
+
+**Task**: Create modal component for HTML import
+
+**What was done**:
+- Added shadcn/ui Dialog component (`bunx shadcn@latest add dialog`)
+- Fixed namespace import lint error in dialog.tsx by converting to named imports from @radix-ui/react-dialog
+- Created `src/components/html-import-modal.tsx` using shadcn Dialog primitives:
+  - Props: `open`, `onOpenChange`, `onImport`
+  - Textarea for pasting HTML with placeholder showing example content
+  - Real-time block count preview using `useMemo` to parse HTML with `parseHtmlToBlocks()`
+  - Import button disabled when no valid blocks, shows count ("Import 5 blocks")
+  - Cancel button clears content and closes modal
+  - Content reset on modal close/open
+  - Dark mode support with surface color tokens
+  - FileCode icon in header for visual context
+
+**Files changed**:
+- `src/components/html-import-modal.tsx` (new file)
+- `src/components/ui/dialog.tsx` (new file - from shadcn, with lint fix)
+
+**Verification**:
+- ✅ TypeScript passes
+- ✅ Tests pass (121 tests)
+- ✅ Lint passes

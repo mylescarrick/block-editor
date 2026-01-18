@@ -81,7 +81,7 @@
         "Add 'Cancel' button that closes modal",
         "Show preview count of blocks that will be created before importing"
       ],
-      "passes": false,
+      "passes": true,
       "notes": "Reuses existing parseHtmlToBlocks() and sanitizeHtml() - no new parsing logic needed."
     },
     {
