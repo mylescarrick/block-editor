@@ -16,13 +16,15 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { FileText, Loader2, Plus, Save } from "lucide-react";
+import { Code2, FileText, Loader2, PenLine, Plus, Save } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useDocumentStore } from "@/hooks/use-document-store";
 import { cn } from "@/lib/utils";
 import type { Block } from "@/types/blocks";
 import { BlockRenderer } from "./block-renderer";
 import { CommandPalette } from "./command-palette";
+import { JsonPreview } from "./json-preview";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 
 // ============================================================================
 // SORTABLE BLOCK WRAPPER
@@ -257,70 +259,93 @@ export function BlockEditor({ documentId }: BlockEditorProps) {
         </div>
       </header>
 
-      {/* Editor content */}
-      <main className="mx-auto max-w-4xl px-6 py-12">
-        <DndContext
-          collisionDetection={closestCenter}
-          onDragEnd={handleDragEnd}
-          onDragStart={handleDragStart}
-          sensors={sensors}
-        >
-          <SortableContext
-            items={document.rootBlockIds}
-            strategy={verticalListSortingStrategy}
-          >
-            <div className="space-y-1 pl-12">
-              {document.rootBlockIds.map((blockId) => {
-                const block = getBlock(blockId);
-                if (!block) {
-                  return null;
-                }
+      {/* Tabs for Editor / Structure views */}
+      <Tabs className="mx-auto max-w-4xl px-6" defaultValue="editor">
+        <TabsList className="my-4">
+          <TabsTrigger value="editor">
+            <PenLine className="mr-1.5 h-4 w-4" />
+            Editor
+          </TabsTrigger>
+          <TabsTrigger value="structure">
+            <Code2 className="mr-1.5 h-4 w-4" />
+            Structure
+          </TabsTrigger>
+        </TabsList>
 
-                return (
-                  <SortableBlock id={blockId} key={blockId}>
-                    {(dragHandleProps) => (
-                      <BlockRenderer
-                        block={block}
-                        dragHandleProps={dragHandleProps}
-                        onDelete={() => removeBlock(blockId)}
-                        onDuplicate={() => duplicateBlock(blockId)}
-                        onUpdate={(props) => updateBlock(blockId, props)}
-                        renderBlock={renderBlockById}
-                      />
-                    )}
-                  </SortableBlock>
-                );
-              })}
+        {/* Editor Tab */}
+        <TabsContent value="editor">
+          <main className="py-8">
+            <DndContext
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+              onDragStart={handleDragStart}
+              sensors={sensors}
+            >
+              <SortableContext
+                items={document.rootBlockIds}
+                strategy={verticalListSortingStrategy}
+              >
+                <div className="space-y-1 pl-12">
+                  {document.rootBlockIds.map((blockId) => {
+                    const block = getBlock(blockId);
+                    if (!block) {
+                      return null;
+                    }
+
+                    return (
+                      <SortableBlock id={blockId} key={blockId}>
+                        {(dragHandleProps) => (
+                          <BlockRenderer
+                            block={block}
+                            dragHandleProps={dragHandleProps}
+                            onDelete={() => removeBlock(blockId)}
+                            onDuplicate={() => duplicateBlock(blockId)}
+                            onUpdate={(props) => updateBlock(blockId, props)}
+                            renderBlock={renderBlockById}
+                          />
+                        )}
+                      </SortableBlock>
+                    );
+                  })}
+                </div>
+              </SortableContext>
+
+              {/* Drag overlay */}
+              <DragOverlay>
+                {activeBlockId ? (
+                  <div className="rounded-lg bg-white p-4 opacity-80 shadow-xl dark:bg-surface-800">
+                    {(() => {
+                      const block = getBlock(activeBlockId);
+                      return block ? (
+                        <div className="text-sm text-surface-600">
+                          Dragging: {block.type}
+                        </div>
+                      ) : null;
+                    })()}
+                  </div>
+                ) : null}
+              </DragOverlay>
+            </DndContext>
+
+            {/* Add block button */}
+            <div className="mt-6 pl-12">
+              <AddBlockButton
+                onClick={() => {
+                  setInsertAfterBlockId(document.rootBlockIds.at(-1));
+                  setShowCommandPalette(true);
+                }}
+              />
             </div>
-          </SortableContext>
+          </main>
+        </TabsContent>
 
-          {/* Drag overlay */}
-          <DragOverlay>
-            {activeBlockId ? (
-              <div className="rounded-lg bg-white p-4 opacity-80 shadow-xl dark:bg-surface-800">
-                {(() => {
-                  const block = getBlock(activeBlockId);
-                  return block ? (
-                    <div className="text-sm text-surface-600">
-                      Dragging: {block.type}
-                    </div>
-                  ) : null;
-                })()}
-              </div>
-            ) : null}
-          </DragOverlay>
-        </DndContext>
-
-        {/* Add block button */}
-        <div className="mt-6 pl-12">
-          <AddBlockButton
-            onClick={() => {
-              setInsertAfterBlockId(document.rootBlockIds.at(-1));
-              setShowCommandPalette(true);
-            }}
-          />
-        </div>
-      </main>
+        {/* Structure Tab */}
+        <TabsContent value="structure">
+          <div className="py-8">
+            <JsonPreview document={document} />
+          </div>
+        </TabsContent>
+      </Tabs>
 
       {/* Command palette */}
       <CommandPalette
