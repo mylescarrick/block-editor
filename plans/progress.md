@@ -148,3 +148,29 @@
 - ✅ TypeScript passes
 - ✅ Tests pass (121 tests)
 - ✅ Lint passes
+---
+
+### 2026-01-19 — html-import-button-006 & html-import-modal-tests-007
+
+**Task**: Add Import HTML button to editor and create modal tests
+
+**What was done**:
+- Added Import HTML button to block-editor.tsx:
+  - State for modal: `const [importModalOpen, setImportModalOpen] = useState(false)`
+  - New `handleHtmlImport` callback using `insertGeneratedBlocks()` with focus tracking
+  - Button placed next to Add Block button with FileCode icon and matching dashed border style
+  - Renders `HtmlImportModal` component with state and callback wiring
+- Created integration tests in `src/components/html-import-modal.test.tsx` (18 tests):
+  - **parseHtmlToBlocks integration**: simple/multiple elements, empty/whitespace input, complex HTML structures
+  - **Callback behavior**: onImport called with blocks, not called when empty, onOpenChange for cancel, modal close after import
+  - **Block count preview**: 0/1/multiple element counts, dynamic count updates
+  - **Edge cases**: malformed HTML, XSS prevention (script tags), deeply nested HTML, whitespace-only text
+
+**Files changed**:
+- `src/components/block-editor.tsx` (modified - imports, state, handler, button, modal)
+- `src/components/html-import-modal.test.tsx` (new file - 18 tests)
+
+**Verification**:
+- ✅ TypeScript passes
+- ✅ Tests pass (138 tests: 121 existing + 17 new modal tests)
+- ✅ Lint passes

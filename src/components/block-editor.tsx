@@ -19,6 +19,7 @@ import { CSS } from "@dnd-kit/utilities";
 import {
   Code2,
   Eye,
+  FileCode,
   FileText,
   Loader2,
   PenLine,
@@ -36,6 +37,7 @@ import { cn } from "@/lib/utils";
 import type { Block } from "@/types/blocks";
 import { BlockRenderer } from "./block-renderer";
 import { CommandPalette } from "./command-palette";
+import { HtmlImportModal } from "./html-import-modal";
 import { HtmlPreview } from "./html-preview";
 import { JsonPreview } from "./json-preview";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
@@ -124,6 +126,7 @@ export function BlockEditor({ documentId }: BlockEditorProps) {
   } = useDocumentStore({ documentId });
 
   const [showCommandPalette, setShowCommandPalette] = useState(false);
+  const [importModalOpen, setImportModalOpen] = useState(false);
   const [activeBlockId, setActiveBlockId] = useState<string | null>(null);
   const [insertAfterBlockId, setInsertAfterBlockId] = useState<
     string | undefined
@@ -201,6 +204,16 @@ export function BlockEditor({ documentId }: BlockEditorProps) {
       setInsertAfterBlockId(undefined);
     },
     [insertGeneratedBlocks, insertAfterBlockId]
+  );
+
+  // Handle HTML import from modal
+  const handleHtmlImport = useCallback(
+    (blocks: Block[]) => {
+      const insertAfter =
+        lastFocusedBlockIdRef.current ?? document.rootBlockIds.at(-1);
+      insertGeneratedBlocks(blocks, insertAfter);
+    },
+    [insertGeneratedBlocks, document.rootBlockIds]
   );
 
   // Track last focused block for paste insertion position
@@ -406,14 +419,29 @@ export function BlockEditor({ documentId }: BlockEditorProps) {
               </DragOverlay>
             </DndContext>
 
-            {/* Add block button */}
-            <div className="mt-6 pl-12">
+            {/* Add block buttons */}
+            <div className="mt-6 flex gap-3 pl-12">
               <AddBlockButton
                 onClick={() => {
                   setInsertAfterBlockId(document.rootBlockIds.at(-1));
                   setShowCommandPalette(true);
                 }}
               />
+              <button
+                className={cn(
+                  "flex items-center justify-center gap-2 px-4 py-3",
+                  "text-sm text-surface-400 hover:text-surface-600",
+                  "border-2 border-surface-200 border-dashed dark:border-surface-700",
+                  "hover:border-surface-300 dark:hover:border-surface-600",
+                  "rounded-xl transition-colors",
+                  "group"
+                )}
+                onClick={() => setImportModalOpen(true)}
+                type="button"
+              >
+                <FileCode className="h-4 w-4 transition-transform group-hover:scale-110" />
+                <span>Import HTML</span>
+              </button>
             </div>
           </main>
         </TabsContent>
@@ -442,6 +470,13 @@ export function BlockEditor({ documentId }: BlockEditorProps) {
         }}
         onInsertBlock={handleInsertBlock}
         onInsertBlocks={handleInsertBlocks}
+      />
+
+      {/* HTML Import modal */}
+      <HtmlImportModal
+        onImport={handleHtmlImport}
+        onOpenChange={setImportModalOpen}
+        open={importModalOpen}
       />
 
       {/* Keyboard hint */}

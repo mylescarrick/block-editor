@@ -96,7 +96,7 @@
         "In onImport callback: call insertGeneratedBlocks() with imported blocks, close modal",
         "Position insertion after last focused block or at end of document"
       ],
-      "passes": false,
+      "passes": true,
       "notes": "Leverages existing insertGeneratedBlocks() and focus tracking from clipboard paste feature.",
       "dependsOn": ["html-import-modal-005"]
     },
@@ -111,8 +111,8 @@
         "Test modal closes when Cancel clicked",
         "Test block count preview updates as HTML is entered"
       ],
-      "passes": false,
-      "notes": "May require React Testing Library setup if not already configured.",
+      "passes": true,
+      "notes": "Tests modal logic and parseHtmlToBlocks integration without RTL. 18 tests covering callback behavior, block count preview, and edge cases.",
       "dependsOn": ["html-import-modal-005"]
     }
   ]
