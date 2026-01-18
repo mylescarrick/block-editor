@@ -66,11 +66,18 @@ export function useDocumentStore(options: UseDocumentStoreOptions = {}) {
   // Update document and schedule save
   const updateDocument = useCallback(
     (updater: (doc: BlockDocument) => BlockDocument) => {
+      let nextDoc: BlockDocument;
       setDocument((prev) => {
-        const next = updater(cloneDocument(prev));
-        next.updatedAt = new Date().toISOString();
-        scheduleSave(next);
-        return next;
+        nextDoc = updater(cloneDocument(prev));
+        nextDoc.updatedAt = new Date().toISOString();
+        return nextDoc;
+      });
+      // Schedule save outside of the state updater to avoid side effects in render
+      // Use queueMicrotask to ensure state has been set
+      queueMicrotask(() => {
+        if (nextDoc) {
+          scheduleSave(nextDoc);
+        }
       });
     },
     [scheduleSave]
