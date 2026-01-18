@@ -132,18 +132,17 @@ export function useDocumentStore(options: UseDocumentStoreOptions = {}) {
               props: { ...parentBlock.props, columns },
             };
           }
-        } else {
-          // Add to root blocks
-          if (options?.afterBlockId) {
-            const index = doc.rootBlockIds.indexOf(options.afterBlockId);
-            if (index >= 0) {
-              doc.rootBlockIds.splice(index + 1, 0, block.props.id);
-            } else {
-              doc.rootBlockIds.push(block.props.id);
-            }
+        } else if (options?.afterBlockId) {
+          // Add to root blocks after specific block
+          const index = doc.rootBlockIds.indexOf(options.afterBlockId);
+          if (index >= 0) {
+            doc.rootBlockIds.splice(index + 1, 0, block.props.id);
           } else {
             doc.rootBlockIds.push(block.props.id);
           }
+        } else {
+          // Add to end of root blocks
+          doc.rootBlockIds.push(block.props.id);
         }
 
         return doc;
@@ -160,7 +159,7 @@ export function useDocumentStore(options: UseDocumentStoreOptions = {}) {
         doc.rootBlockIds = doc.rootBlockIds.filter((id) => id !== blockId);
 
         // Remove from any columns
-        Object.values(doc.blocks).forEach((block) => {
+        for (const block of Object.values(doc.blocks)) {
           if (block.type === "columns") {
             const newColumns = block.props.columns.map((col) =>
               col.filter((id) => id !== blockId)
@@ -170,7 +169,7 @@ export function useDocumentStore(options: UseDocumentStoreOptions = {}) {
               props: { ...block.props, columns: newColumns },
             };
           }
-        });
+        }
 
         // Delete the block itself
         delete doc.blocks[blockId];
@@ -192,7 +191,7 @@ export function useDocumentStore(options: UseDocumentStoreOptions = {}) {
       updateDocument((doc) => {
         // First, remove from current location
         doc.rootBlockIds = doc.rootBlockIds.filter((id) => id !== blockId);
-        Object.values(doc.blocks).forEach((block) => {
+        for (const block of Object.values(doc.blocks)) {
           if (block.type === "columns") {
             const newColumns = block.props.columns.map((col) =>
               col.filter((id) => id !== blockId)
@@ -202,7 +201,7 @@ export function useDocumentStore(options: UseDocumentStoreOptions = {}) {
               props: { ...block.props, columns: newColumns },
             };
           }
-        });
+        }
 
         // Then, add to new location
         if (targetColumnId && targetColumnIndex !== undefined) {
@@ -252,9 +251,9 @@ export function useDocumentStore(options: UseDocumentStoreOptions = {}) {
     (blocks: Block[], afterBlockId?: string) => {
       updateDocument((doc) => {
         // Add all blocks to the map
-        blocks.forEach((block) => {
+        for (const block of blocks) {
           doc.blocks[block.props.id] = block;
-        });
+        }
 
         // Get root-level block IDs (blocks that are in columns will be handled by the columns block)
         const rootBlockIds = blocks

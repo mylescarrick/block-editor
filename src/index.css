@@ -1,12 +1,97 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  --font-sans: DM Sans, system-ui, sans-serif;
+  --font-display: Instrument Serif, Georgia, serif;
+  --font-mono: JetBrains Mono, monospace;
+
+  --color-surface-50: #fafafa;
+  --color-surface-100: #f4f4f5;
+  --color-surface-200: #e4e4e7;
+  --color-surface-300: #d4d4d8;
+  --color-surface-400: #a1a1aa;
+  --color-surface-500: #71717a;
+  --color-surface-600: #52525b;
+  --color-surface-700: #3f3f46;
+  --color-surface-800: #27272a;
+  --color-surface-900: #18181b;
+
+  --color-accent: #6366f1;
+  --color-accent-hover: #4f46e5;
+  --color-accent-muted: #e0e7ff;
+
+  --animate-fade-in: fadeIn 0.2s ease-out;
+  --animate-slide-up: slideUp 0.3s ease-out;
+  --animate-scale-in: scaleIn 0.15s ease-out;
+
+  @keyframes fadeIn {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+  @keyframes slideUp {
+    0% {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @keyframes scaleIn {
+    0% {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+}
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
 
 /* Base styles */
 :root {
   --font-sans: "DM Sans", system-ui, sans-serif;
   --font-display: "Instrument Serif", Georgia, serif;
   --font-mono: "JetBrains Mono", monospace;
+
+  /* Color tokens - matches tailwind.config.js */
+  --color-surface-50: #fafafa;
+  --color-surface-100: #f4f4f5;
+  --color-surface-200: #e4e4e7;
+  --color-surface-300: #d4d4d8;
+  --color-surface-400: #a1a1aa;
+  --color-surface-500: #71717a;
+  --color-surface-600: #52525b;
+  --color-surface-700: #3f3f46;
+  --color-surface-800: #27272a;
+  --color-surface-900: #18181b;
+  --color-accent: #6366f1;
+  --color-accent-hover: #4f46e5;
+  --color-accent-muted: #e0e7ff;
 }
 
 body {
@@ -23,7 +108,7 @@ body {
 .ProseMirror p.is-editor-empty:first-child::before {
   content: attr(data-placeholder);
   float: left;
-  color: theme("colors.surface.400");
+  color: var(--color-surface-400);
   pointer-events: none;
   height: 0;
 }
@@ -49,13 +134,13 @@ body {
 }
 
 .ProseMirror a {
-  color: theme("colors.accent.DEFAULT");
+  color: var(--color-accent);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
 
 .ProseMirror a:hover {
-  color: theme("colors.accent.hover");
+  color: var(--color-accent-hover);
 }
 
 .ProseMirror mark {
@@ -68,13 +153,13 @@ body {
 .ProseMirror code {
   font-family: var(--font-mono);
   font-size: 0.875em;
-  background-color: theme("colors.surface.100");
+  background-color: var(--color-surface-100);
   padding: 0.125em 0.375em;
   border-radius: 0.25em;
 }
 
 .dark .ProseMirror code {
-  background-color: theme("colors.surface.800");
+  background-color: var(--color-surface-800);
 }
 
 /* Lists */
@@ -94,7 +179,7 @@ body {
 
 /* Blockquotes */
 .ProseMirror blockquote {
-  border-left: 3px solid theme("colors.surface.300");
+  border-left: 3px solid var(--color-surface-300);
   padding-left: 1em;
   margin: 1em 0;
   font-style: italic;
@@ -102,7 +187,7 @@ body {
 
 /* Selection */
 .ProseMirror ::selection {
-  background-color: theme("colors.accent.muted");
+  background-color: var(--color-accent-muted);
 }
 
 /* Focus styles */
@@ -121,20 +206,20 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: theme("colors.surface.300");
+  background: var(--color-surface-300);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: theme("colors.surface.400");
+  background: var(--color-surface-400);
 }
 
 .dark ::-webkit-scrollbar-thumb {
-  background: theme("colors.surface.600");
+  background: var(--color-surface-600);
 }
 
 .dark ::-webkit-scrollbar-thumb:hover {
-  background: theme("colors.surface.500");
+  background: var(--color-surface-500);
 }
 
 /* Animation utilities */
@@ -151,9 +236,9 @@ body {
   animation: shimmer 2s linear infinite;
   background: linear-gradient(
     90deg,
-    theme("colors.surface.100") 25%,
-    theme("colors.surface.200") 50%,
-    theme("colors.surface.100") 75%
+    var(--color-surface-100) 25%,
+    var(--color-surface-200) 50%,
+    var(--color-surface-100) 75%
   );
   background-size: 200% 100%;
 }
@@ -161,9 +246,9 @@ body {
 .dark .animate-shimmer {
   background: linear-gradient(
     90deg,
-    theme("colors.surface.800") 25%,
-    theme("colors.surface.700") 50%,
-    theme("colors.surface.800") 75%
+    var(--color-surface-800) 25%,
+    var(--color-surface-700) 50%,
+    var(--color-surface-800) 75%
   );
   background-size: 200% 100%;
 }

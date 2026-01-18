@@ -1,4 +1,4 @@
-import { BlockEditor } from "./components";
+import { BlockEditor } from "./components/block-editor";
 
 function App() {
   return <BlockEditor />;

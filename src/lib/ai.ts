@@ -1,6 +1,9 @@
 import { createBlock, generateId } from "@/lib/utils";
 import type { Block } from "@/types/blocks";
 
+// Regex for extracting JSON from markdown code blocks
+const JSON_CODE_BLOCK_REGEX = /```(?:json)?\s*([\s\S]*?)```/;
+
 // ============================================================================
 // AI GENERATION (STUB)
 // Replace with actual API calls to your AI backend
@@ -52,10 +55,7 @@ Output valid JSON array of blocks. Each block must have: { type, props: { id, ..
 export function parseAIResponse(response: string): Block[] {
   try {
     // Extract JSON from response (handle markdown code blocks)
-    const jsonMatch = response.match(/```(?:json)?\s*([\s\S]*?)```/) || [
-      null,
-      response,
-    ];
+    const jsonMatch = response.match(JSON_CODE_BLOCK_REGEX) || [null, response];
     const jsonStr = jsonMatch[1] || response;
 
     const parsed = JSON.parse(jsonStr.trim());
@@ -173,7 +173,7 @@ const mockResponses: Record<string, () => Block[]> = {
 
 function Counter() {
   const [count, setCount] = useState(0);
-  
+
   return (
     <button onClick={() => setCount(c => c + 1)}>
       Count: {count}

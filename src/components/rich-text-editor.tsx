@@ -71,7 +71,7 @@ export function RichTextEditor({
     editorProps: {
       attributes: {
         class: cn(
-          "prose prose-stone dark:prose-invert min-h-[1.5em] max-w-none focus:outline-none",
+          "prose prose-stone dark:prose-invert min-h-[1.5em] max-w-none focus:outline-hidden",
           editorClassName
         ),
       },
@@ -101,6 +101,7 @@ export function RichTextEditor({
     }
 
     const previousUrl = editor.getAttributes("link").href;
+    // biome-ignore lint/suspicious/noAlert: Prototype uses prompt for simplicity - replace with modal in production
     const url = window.prompt("URL", previousUrl);
 
     if (url === null) {
@@ -228,7 +229,7 @@ function ToolbarButton({
   return (
     <button
       className={cn(
-        "rounded p-1.5 transition-colors",
+        "rounded-sm p-1.5 transition-colors",
         isActive
           ? "bg-accent text-white"
           : "text-surface-600 hover:bg-surface-100 dark:text-surface-400 dark:hover:bg-surface-700"

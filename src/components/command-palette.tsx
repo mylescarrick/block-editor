@@ -203,9 +203,37 @@ export function CommandPalette({
       cmd.description.toLowerCase().includes(query.toLowerCase())
   );
 
+  // Handle AI mode submission
+  const handleAISubmit = useCallback(async () => {
+    if (!query.trim()) {
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const blocks = await generateBlocksFromPrompt(query);
+      onInsertBlocks(blocks);
+      onClose();
+    } catch (error) {
+      console.error("AI generation failed:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [query, onInsertBlocks, onClose]);
+
+  // Handle command selection
+  const handleSelectCommand = useCallback(() => {
+    const selected = filteredCommands[selectedIndex];
+    if (selected) {
+      selected.action();
+      if (selected.id !== "ai") {
+        onClose();
+      }
+    }
+  }, [filteredCommands, selectedIndex, onClose]);
+
   // Handle keyboard navigation
   const handleKeyDown = useCallback(
-    async (e: React.KeyboardEvent) => {
+    (e: React.KeyboardEvent) => {
       if (e.key === "Escape") {
         if (isAIMode) {
           setIsAIMode(false);
@@ -217,40 +245,37 @@ export function CommandPalette({
       }
 
       if (isAIMode) {
-        if (e.key === "Enter" && query.trim()) {
+        if (e.key === "Enter") {
           e.preventDefault();
-          setIsLoading(true);
-          try {
-            const blocks = await generateBlocksFromPrompt(query);
-            onInsertBlocks(blocks);
-            onClose();
-          } catch (error) {
-            console.error("AI generation failed:", error);
-          } finally {
-            setIsLoading(false);
-          }
+          handleAISubmit();
         }
         return;
       }
 
-      if (e.key === "ArrowDown") {
-        e.preventDefault();
-        setSelectedIndex((i) => Math.min(i + 1, filteredCommands.length - 1));
-      } else if (e.key === "ArrowUp") {
-        e.preventDefault();
-        setSelectedIndex((i) => Math.max(i - 1, 0));
-      } else if (e.key === "Enter") {
-        e.preventDefault();
-        const selected = filteredCommands[selectedIndex];
-        if (selected) {
-          selected.action();
-          if (selected.id !== "ai") {
-            onClose();
-          }
-        }
+      switch (e.key) {
+        case "ArrowDown":
+          e.preventDefault();
+          setSelectedIndex((i) => Math.min(i + 1, filteredCommands.length - 1));
+          break;
+        case "ArrowUp":
+          e.preventDefault();
+          setSelectedIndex((i) => Math.max(i - 1, 0));
+          break;
+        case "Enter":
+          e.preventDefault();
+          handleSelectCommand();
+          break;
+        default:
+          break;
       }
     },
-    [filteredCommands, selectedIndex, isAIMode, query, onClose, onInsertBlocks]
+    [
+      filteredCommands.length,
+      isAIMode,
+      onClose,
+      handleAISubmit,
+      handleSelectCommand,
+    ]
   );
 
   // Group commands by category
@@ -279,7 +304,11 @@ export function CommandPalette({
   return (
     <>
       {/* Backdrop */}
-      <div className="fixed inset-0 z-40" onClick={onClose} />
+      <div
+        aria-hidden="true"
+        className="fixed inset-0 z-40"
+        onClick={onClose}
+      />
 
       {/* Centering wrapper - handles positioning without transform conflict */}
       <div
@@ -305,12 +334,12 @@ export function CommandPalette({
           <div className="border-surface-200 border-b p-3 dark:border-surface-700">
             <div className="flex items-center gap-2">
               {isAIMode && (
-                <Sparkles className="h-4 w-4 flex-shrink-0 text-accent" />
+                <Sparkles className="h-4 w-4 shrink-0 text-accent" />
               )}
               <input
                 className={cn(
                   "w-full bg-transparent text-sm",
-                  "focus:outline-none",
+                  "focus:outline-hidden",
                   "placeholder:text-surface-400"
                 )}
                 onChange={(e) => {
@@ -392,7 +421,7 @@ export function CommandPalette({
                       >
                         <div
                           className={cn(
-                            "flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg",
+                            "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg",
                             globalIndex === selectedIndex
                               ? "bg-accent text-white"
                               : "bg-surface-100 text-surface-500 dark:bg-surface-700"

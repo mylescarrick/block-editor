@@ -22,7 +22,7 @@ import type {
   ParagraphBlock,
   QuoteBlock,
 } from "@/types/blocks";
-import { RichTextEditor } from "./RichTextEditor";
+import { RichTextEditor } from "./rich-text-editor";
 
 // ============================================================================
 // BLOCK WRAPPER
@@ -57,7 +57,7 @@ export function BlockWrapper({
       >
         {/* Drag handle */}
         <button
-          className="cursor-grab rounded p-1 text-surface-400 hover:bg-surface-100 hover:text-surface-600 active:cursor-grabbing"
+          className="cursor-grab rounded-sm p-1 text-surface-400 hover:bg-surface-100 hover:text-surface-600 active:cursor-grabbing"
           type="button"
           {...dragHandleProps}
         >
@@ -67,7 +67,7 @@ export function BlockWrapper({
         {/* Actions menu */}
         <div className="relative">
           <button
-            className="rounded p-1 text-surface-400 hover:bg-surface-100 hover:text-surface-600"
+            className="rounded-sm p-1 text-surface-400 hover:bg-surface-100 hover:text-surface-600"
             onClick={() => setShowMenu(!showMenu)}
             type="button"
           >
@@ -77,6 +77,7 @@ export function BlockWrapper({
           {showMenu && (
             <>
               <div
+                aria-hidden="true"
                 className="fixed inset-0 z-10"
                 onClick={() => setShowMenu(false)}
               />
@@ -213,15 +214,16 @@ export function ImageBlockRenderer({
 
   if (!block.props.src) {
     return (
-      <div
+      <button
         className={cn(
-          "flex flex-col items-center justify-center gap-3 px-6 py-12",
+          "flex w-full flex-col items-center justify-center gap-3 px-6 py-12",
           "rounded-xl border-2 border-surface-300 border-dashed dark:border-surface-600",
           "bg-surface-50 dark:bg-surface-800/50",
           "cursor-pointer transition-colors hover:border-accent",
           "group"
         )}
         onClick={() => fileInputRef.current?.click()}
+        type="button"
       >
         <div className="rounded-full bg-surface-100 p-3 transition-colors group-hover:bg-accent/10 dark:bg-surface-700">
           <ImagePlus className="h-8 w-8 text-surface-400 transition-colors group-hover:text-accent" />
@@ -241,7 +243,7 @@ export function ImageBlockRenderer({
           ref={fileInputRef}
           type="file"
         />
-      </div>
+      </button>
     );
   }
 
@@ -251,7 +253,9 @@ export function ImageBlockRenderer({
         <img
           alt={block.props.alt}
           className="w-full rounded-lg"
+          height="auto"
           src={block.props.src}
+          width="100%"
         />
 
         {/* Width controls */}
@@ -264,7 +268,7 @@ export function ImageBlockRenderer({
           {(["small", "medium", "large", "full"] as const).map((size) => (
             <button
               className={cn(
-                "rounded px-2 py-1 text-xs",
+                "rounded-sm px-2 py-1 text-xs",
                 block.props.width === size
                   ? "bg-white text-black"
                   : "text-white hover:bg-white/20"
@@ -284,7 +288,7 @@ export function ImageBlockRenderer({
         <input
           className={cn(
             "w-full text-center text-sm text-surface-500 dark:text-surface-400",
-            "border-none bg-transparent focus:outline-none focus:ring-0",
+            "border-none bg-transparent focus:outline-hidden focus:ring-0",
             "placeholder:text-surface-400"
           )}
           onChange={(e) => onUpdate({ caption: e.target.value })}
@@ -331,9 +335,9 @@ export function DividerBlockRenderer({
           {(["solid", "dashed", "dotted"] as const).map((style) => (
             <button
               className={cn(
-                "rounded px-2 py-1 text-xs capitalize",
+                "rounded-sm px-2 py-1 text-xs capitalize",
                 block.props.style === style
-                  ? "bg-white shadow-sm dark:bg-surface-700"
+                  ? "bg-white shadow-xs dark:bg-surface-700"
                   : "hover:bg-white/50 dark:hover:bg-surface-700/50"
               )}
               key={style}
@@ -394,7 +398,7 @@ export function CalloutBlockRenderer({
         variantStyles[block.props.variant]
       )}
     >
-      <div className="flex-shrink-0 pt-0.5">
+      <div className="shrink-0 pt-0.5">
         {block.props.emoji ? (
           <span className="text-xl">{block.props.emoji}</span>
         ) : (
@@ -439,7 +443,7 @@ export function CodeBlockRenderer({ block, onUpdate }: CodeBlockRendererProps) {
       <div className="flex items-center justify-between border-surface-700 border-b bg-surface-800 px-4 py-2 dark:bg-surface-900">
         <select
           className={cn(
-            "border-none bg-transparent text-surface-400 text-xs focus:outline-none focus:ring-0",
+            "border-none bg-transparent text-surface-400 text-xs focus:outline-hidden focus:ring-0",
             "cursor-pointer"
           )}
           onChange={(e) => onUpdate({ language: e.target.value })}
@@ -466,7 +470,7 @@ export function CodeBlockRenderer({ block, onUpdate }: CodeBlockRendererProps) {
         <textarea
           className={cn(
             "w-full bg-transparent font-mono text-sm text-surface-100",
-            "resize-none border-none focus:outline-none focus:ring-0",
+            "resize-none border-none focus:outline-hidden focus:ring-0",
             "placeholder:text-surface-600"
           )}
           onChange={(e) => onUpdate({ code: e.target.value })}
@@ -506,7 +510,7 @@ export function QuoteBlockRenderer({
       <input
         className={cn(
           "mt-2 text-sm text-surface-500 dark:text-surface-500",
-          "border-none bg-transparent focus:outline-none focus:ring-0",
+          "border-none bg-transparent focus:outline-hidden focus:ring-0",
           "placeholder:text-surface-400"
         )}
         onChange={(e) => onUpdate({ attribution: e.target.value })}
@@ -547,9 +551,9 @@ export function ColumnsBlockRenderer({
           {layouts.map((layout) => (
             <button
               className={cn(
-                "rounded px-2 py-1 text-xs",
+                "rounded-sm px-2 py-1 text-xs",
                 block.props.layout === layout
-                  ? "bg-white shadow-sm dark:bg-surface-700"
+                  ? "bg-white shadow-xs dark:bg-surface-700"
                   : "hover:bg-white/50 dark:hover:bg-surface-700/50"
               )}
               key={layout}
@@ -590,7 +594,7 @@ export function ColumnsBlockRenderer({
               "hover:border-surface-200 dark:hover:border-surface-700",
               "transition-colors"
             )}
-            key={colIndex}
+            key={`col-${block.props.id}-${colIndex}`}
             style={{ flexBasis: flexBasis[colIndex] }}
           >
             {columnBlockIds.length === 0 ? (

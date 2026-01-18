@@ -18,11 +18,11 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { FileText, Loader2, Plus, Save } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
-import { useDocumentStore } from "@/hooks/useDocumentStore";
+import { useDocumentStore } from "@/hooks/use-document-store";
 import { cn } from "@/lib/utils";
 import type { Block } from "@/types/blocks";
-import { BlockRenderer } from "./BlockRenderer";
-import { CommandPalette } from "./CommandPalette";
+import { BlockRenderer } from "./block-renderer";
+import { CommandPalette } from "./command-palette";
 
 // ============================================================================
 // SORTABLE BLOCK WRAPPER
@@ -224,14 +224,14 @@ export function BlockEditor({ documentId }: BlockEditorProps) {
   return (
     <div className="min-h-screen bg-surface-50 dark:bg-surface-900">
       {/* Header */}
-      <header className="sticky top-0 z-30 border-surface-200 border-b bg-white/80 backdrop-blur-sm dark:border-surface-800 dark:bg-surface-900/80">
+      <header className="sticky top-0 z-30 border-surface-200 border-b bg-white/80 backdrop-blur-xs dark:border-surface-800 dark:bg-surface-900/80">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-3">
             <FileText className="h-5 w-5 text-accent" />
             <input
               className={cn(
                 "bg-transparent font-semibold text-lg",
-                "border-none focus:outline-none focus:ring-0",
+                "border-none focus:outline-hidden focus:ring-0",
                 "placeholder:text-surface-400"
               )}
               onChange={(e) => setTitle(e.target.value)}
@@ -336,7 +336,7 @@ export function BlockEditor({ documentId }: BlockEditorProps) {
       {/* Keyboard hint */}
       <div className="fixed right-6 bottom-6 rounded-full border border-surface-200 bg-white px-3 py-2 text-surface-400 text-xs shadow-lg dark:border-surface-700 dark:bg-surface-800">
         Press{" "}
-        <kbd className="rounded bg-surface-100 px-1.5 py-0.5 font-mono dark:bg-surface-700">
+        <kbd className="rounded-sm bg-surface-100 px-1.5 py-0.5 font-mono dark:bg-surface-700">
           /
         </kbd>{" "}
         to add blocks
