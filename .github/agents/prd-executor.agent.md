@@ -26,7 +26,7 @@ You execute tasks from a Product Requirements Document (PRD) for our app
 
 ### 1. Study Context (First time only)
 - Read `.github/copilot-instructions.md` and the root `README.md`
-<!-- - Read `plans/insights.md` and `plans/LEARNINGS.md` -->
+- Read `plans/insights.md` (learnings so far) and `plans/progress.md` (for current sprint status)
 
 ### 2. Check Baseline Health
 ```bash

@@ -1,5 +1,96 @@
+import DOMPurify from "dompurify";
 import { createBlock } from "@/lib/utils";
 import type { Block } from "@/types/blocks";
+
+/**
+ * Allowed HTML tags for sanitization.
+ * Includes semantic/structural tags and inline formatting tags that TipTap supports.
+ */
+const ALLOWED_TAGS = [
+  // Structural
+  "p",
+  "h1",
+  "h2",
+  "h3",
+  "h4",
+  "h5",
+  "h6",
+  "blockquote",
+  "pre",
+  "code",
+  "hr",
+  "br",
+  // Lists
+  "ul",
+  "ol",
+  "li",
+  // Inline formatting
+  "strong",
+  "em",
+  "b",
+  "i",
+  "u",
+  "s",
+  "strike",
+  "sub",
+  "sup",
+  "mark",
+  "span",
+  // Links and media
+  "a",
+  "img",
+  // Figures
+  "figure",
+  "figcaption",
+  // Tables (will be flattened later, but allow for extraction)
+  "table",
+  "thead",
+  "tbody",
+  "tr",
+  "th",
+  "td",
+  // Other semantic
+  "cite",
+  "footer",
+  "div",
+  "section",
+  "article",
+  "main",
+];
+
+/**
+ * Allowed HTML attributes for sanitization.
+ * Only safe attributes that don't execute code.
+ */
+const ALLOWED_ATTRS = [
+  "href",
+  "src",
+  "alt",
+  "title",
+  "class",
+  "id",
+  "target",
+  "rel",
+  "width",
+  "height",
+];
+
+/**
+ * Sanitize HTML content to remove dangerous elements and attributes.
+ * Uses DOMPurify to strip XSS vectors, event handlers, and javascript: URLs.
+ *
+ * @param html - Raw HTML string to sanitize
+ * @returns Sanitized HTML string safe for DOM parsing
+ */
+export function sanitizeHtml(html: string): string {
+  return DOMPurify.sanitize(html, {
+    ALLOWED_TAGS,
+    ALLOWED_ATTR: ALLOWED_ATTRS,
+    ALLOW_DATA_ATTR: false,
+    // Automatically add rel="noopener" to links with target="_blank"
+    ADD_ATTR: ["rel"],
+  });
+}
 
 // Top-level regex patterns for performance
 const HEADING_H1_H3_REGEX = /^h[1-3]$/;
@@ -24,8 +115,11 @@ export function parseHtmlToBlocks(html: string): Block[] {
     return [];
   }
 
+  // Sanitize HTML before parsing to prevent XSS and strip dangerous content
+  const sanitizedHtml = sanitizeHtml(html);
+
   const parser = new DOMParser();
-  const doc = parser.parseFromString(html, "text/html");
+  const doc = parser.parseFromString(sanitizedHtml, "text/html");
 
   const blocks: Block[] = [];
   const body = doc.body;

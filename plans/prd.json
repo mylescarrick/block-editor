@@ -31,7 +31,7 @@
         "Strip event handlers (onclick, onerror), javascript: URLs, and style attributes",
         "Call sanitizeHtml() before parsing in parseHtmlToBlocks()"
       ],
-      "passes": false,
+      "passes": true,
       "notes": "Security critical. DOMPurify is the industry standard for HTML sanitization."
     },
     {

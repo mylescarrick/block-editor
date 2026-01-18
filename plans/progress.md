@@ -5,7 +5,7 @@
 > ⚠️ **This file is temporary** — Delete or archive after sprint ends.
 > For permanent learnings, add them to `insights.md` instead.
 >
-> 📋 **Source of truth**: `prd.json` tracks task status. This file is for iteration details only.
+> 📋 **Source of truth**: `prd.json` tracks task status. This file is for iteration details only. `progress.md` keeps a log of actual work completed.
 
 ---
 
@@ -36,6 +36,30 @@
 
 **Files changed**:
 - `src/lib/clipboard-parser.ts` (new file)
+
+**Verification**:
+- ✅ TypeScript passes
+- ✅ Tests pass
+- ✅ Lint passes
+
+### 2026-01-19 — clipboard-sanitizer-002
+
+**Task**: Add HTML sanitization to strip dangerous content before block conversion
+
+**What was done**:
+- Installed DOMPurify (v3.3.1) and @types/dompurify as dependencies
+- Added `sanitizeHtml(html: string): string` function to clipboard-parser.ts
+- Configured DOMPurify with explicit allowlists:
+  - **ALLOWED_TAGS**: Structural (p, h1-h6, blockquote, pre, code, hr, br), lists (ul, ol, li), inline formatting (strong, em, b, i, u, s, strike, sub, sup, mark, span), links/media (a, img), figures (figure, figcaption), tables (for future extraction), semantic containers (cite, footer, div, section, article, main)
+  - **ALLOWED_ATTRS**: href, src, alt, title, class, id, target, rel, width, height
+- Strips all event handlers (onclick, onerror, etc.), javascript: URLs, style attributes, and data-* attributes
+- Automatically adds rel="noopener" to target="_blank" links
+- Integrated sanitization as first step in `parseHtmlToBlocks()` before DOM parsing
+
+**Files changed**:
+- `src/lib/clipboard-parser.ts` (modified - added sanitizeHtml export and integration)
+- `package.json` (updated - added dompurify dependency)
+- `bun.lock` (updated)
 
 **Verification**:
 - ✅ TypeScript passes
