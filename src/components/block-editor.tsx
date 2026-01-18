@@ -16,7 +16,15 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Code2, FileText, Loader2, PenLine, Plus, Save } from "lucide-react";
+import {
+  Code2,
+  Eye,
+  FileText,
+  Loader2,
+  PenLine,
+  Plus,
+  Save,
+} from "lucide-react";
 import type { ClipboardEvent } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useDocumentStore } from "@/hooks/use-document-store";
@@ -28,6 +36,7 @@ import { cn } from "@/lib/utils";
 import type { Block } from "@/types/blocks";
 import { BlockRenderer } from "./block-renderer";
 import { CommandPalette } from "./command-palette";
+import { HtmlPreview } from "./html-preview";
 import { JsonPreview } from "./json-preview";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 
@@ -330,6 +339,10 @@ export function BlockEditor({ documentId }: BlockEditorProps) {
             <PenLine className="mr-1.5 h-4 w-4" />
             Editor
           </TabsTrigger>
+          <TabsTrigger value="preview">
+            <Eye className="mr-1.5 h-4 w-4" />
+            Preview
+          </TabsTrigger>
           <TabsTrigger value="structure">
             <Code2 className="mr-1.5 h-4 w-4" />
             Structure
@@ -403,6 +416,13 @@ export function BlockEditor({ documentId }: BlockEditorProps) {
               />
             </div>
           </main>
+        </TabsContent>
+
+        {/* Preview Tab */}
+        <TabsContent value="preview">
+          <div className="py-8">
+            <HtmlPreview document={document} />
+          </div>
         </TabsContent>
 
         {/* Structure Tab */}

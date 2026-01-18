@@ -67,3 +67,23 @@
 - ✅ Lint passes
 
 <!-- Log entries will be added below as tasks are completed -->
+
+---
+
+### 2026-01-19 — html-preview-tab-003
+
+**Task**: Add Preview tab to block editor
+
+**What was done**:
+- Imported `Eye` icon from lucide-react and `HtmlPreview` component in block-editor.tsx
+- Added new `TabsTrigger` with `value="preview"`, Eye icon, and "Preview" label
+- Added corresponding `TabsContent` rendering `<HtmlPreview document={document} />`
+- Positioned Preview tab between Editor and Structure tabs for logical flow (edit → preview → debug)
+
+**Files changed**:
+- `src/components/block-editor.tsx` (modified)
+
+**Verification**:
+- ✅ TypeScript passes
+- ✅ Tests pass (74 existing tests)
+- ✅ Lint passes

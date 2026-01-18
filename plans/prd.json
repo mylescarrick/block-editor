@@ -47,7 +47,7 @@
         "Add corresponding TabsContent rendering <HtmlPreview document={document} />",
         "Position tab between Editor and Structure for logical flow"
       ],
-      "passes": false,
+      "passes": true,
       "notes": "Minimal change to existing tab structure.",
       "dependsOn": ["html-preview-component-002"]
     },
