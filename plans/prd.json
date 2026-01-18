@@ -16,7 +16,7 @@
         "Use semantic HTML elements: h1-h3, p, blockquote with cite, figure with figcaption, pre with code, hr, aside for callout",
         "Export documentToHtml(document: BlockDocument): string that iterates rootBlockIds and joins block HTML"
       ],
-      "passes": false,
+      "passes": true,
       "notes": "Pure functions, no React dependencies. getBlock callback enables column child lookups without coupling to store."
     },
     {
