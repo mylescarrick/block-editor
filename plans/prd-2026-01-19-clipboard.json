@@ -1,0 +1,147 @@
+{
+  "feature": "Clipboard Paste to Blocks Conversion",
+  "summary": "Enable users to paste rich content from external sources (web pages, Word, Google Docs) and automatically convert it into editable blocks using semantic HTML recognition.",
+  "requirements": [
+    {
+      "id": "clipboard-parser-001",
+      "category": "functional",
+      "priority": 1,
+      "description": "Create HTML parser utility that converts pasted HTML into block structures",
+      "steps": [
+        "Create new file at src/lib/clipboard-parser.ts",
+        "Export parseHtmlToBlocks(html: string): Block[] function",
+        "Use DOMParser to parse HTML string into DOM tree",
+        "Walk DOM tree and map semantic elements to blocks: <h1-h3> → heading, <p> → paragraph, <blockquote> → quote, <pre>/<code> → code, <hr> → divider, <img> → image",
+        "Preserve inner HTML for text blocks (bold, italic, links, lists) as TipTap expects HTML strings",
+        "Use createBlock() from utils.ts to generate blocks with proper IDs and defaults",
+        "Handle nested structures: flatten deeply nested divs, extract meaningful content"
+      ],
+      "passes": true,
+      "notes": "Follow pattern from ai.ts parseAIResponse(). DOMParser is available in all modern browsers."
+    },
+    {
+      "id": "clipboard-sanitizer-002",
+      "category": "functional",
+      "priority": 1,
+      "description": "Add HTML sanitization to strip dangerous content before block conversion",
+      "steps": [
+        "Add DOMPurify as dependency: bun add dompurify && bun add -d @types/dompurify",
+        "Create sanitizeHtml(html: string): string function in clipboard-parser.ts",
+        "Configure DOMPurify to allow safe tags: p, h1-h6, strong, em, u, a, ul, ol, li, blockquote, pre, code, img, hr, br, span",
+        "Strip event handlers (onclick, onerror), javascript: URLs, and style attributes",
+        "Call sanitizeHtml() before parsing in parseHtmlToBlocks()"
+      ],
+      "passes": true,
+      "notes": "Security critical. DOMPurify is the industry standard for HTML sanitization."
+    },
+    {
+      "id": "clipboard-paste-handler-003",
+      "category": "functional",
+      "priority": 2,
+      "description": "Add paste event handler to block editor component",
+      "steps": [
+        "Add onPaste handler to main editor wrapper div in block-editor.tsx",
+        "In handler: check if event target is inside a TipTap editor (contenteditable) - if so, return early and let TipTap handle",
+        "Read clipboard data: clipboardData.getData('text/html') for rich content",
+        "If HTML available: call parseHtmlToBlocks(), then insertGeneratedBlocks() with result",
+        "Prevent default only when handling the paste ourselves",
+        "Track insertAfterBlockId for insertion position (use last focused block or append to end)"
+      ],
+      "passes": true,
+      "notes": "Key UX: don't interfere with TipTap's native paste when editing inside a text block."
+    },
+    {
+      "id": "clipboard-plaintext-fallback-004",
+      "category": "functional",
+      "priority": 3,
+      "description": "Handle plain text paste when HTML is unavailable",
+      "steps": [
+        "Export parsePlainTextToBlocks(text: string): Block[] in clipboard-parser.ts",
+        "Split text by double newlines (\\n\\n) to identify paragraph boundaries",
+        "Create paragraph block for each non-empty segment",
+        "Preserve single newlines as <br> within paragraphs",
+        "In paste handler: fallback to clipboardData.getData('text/plain') if no HTML"
+      ],
+      "passes": true,
+      "notes": "Fallback for content copied from plain text editors or terminal."
+    },
+    {
+      "id": "clipboard-list-handling-005",
+      "category": "functional",
+      "priority": 3,
+      "description": "Preserve list structures in pasted content",
+      "steps": [
+        "When encountering <ul> or <ol> elements, preserve as HTML inside a single paragraph block",
+        "TipTap's StarterKit includes BulletList and OrderedList extensions that render lists",
+        "Maintain list nesting structure in the preserved HTML",
+        "Alternative future consideration: create dedicated list block type"
+      ],
+      "passes": true,
+      "notes": "TipTap handles list rendering within blocks. Lists stay editable with proper formatting."
+    },
+    {
+      "id": "clipboard-table-handling-006",
+      "category": "functional",
+      "priority": 4,
+      "description": "Handle table content gracefully (no table block type exists)",
+      "steps": [
+        "When encountering <table> elements, extract cell content as separate paragraphs",
+        "Optionally: preserve row structure by joining cells with ' | ' separator",
+        "Log warning or show toast indicating table structure was flattened",
+        "Document as known limitation for future table block type"
+      ],
+      "passes": true,
+      "notes": "Deferred: Adding a table block type is a larger feature. For now, degrade gracefully."
+    },
+    {
+      "id": "clipboard-tests-007",
+      "category": "testing",
+      "priority": 2,
+      "description": "Add unit tests for clipboard parsing functions",
+      "steps": [
+        "Create test file at src/lib/clipboard-parser.test.ts",
+        "Test parseHtmlToBlocks() with various HTML structures: headings, paragraphs, mixed content",
+        "Test sanitizeHtml() strips dangerous content while preserving safe tags",
+        "Test parsePlainTextToBlocks() handles newline variations correctly",
+        "Test edge cases: empty input, whitespace-only, malformed HTML"
+      ],
+      "passes": true,
+      "notes": "Parser is pure function, easy to unit test. Use real-world HTML samples from Word/Google Docs.",
+      "dependsOn": ["testing-infrastructure-008"]
+    },
+    {
+      "id": "testing-infrastructure-008",
+      "category": "testing",
+      "priority": 1,
+      "description": "Set up Bun test runner with DOM mocking for browser API support",
+      "steps": [
+        "Install happy-dom for DOM polyfill: bun add -d happy-dom",
+        "Install Bun types for test globals: bun add -d @types/bun",
+        "Create test/setup.ts that imports happy-dom and registers it globally (Window, Document, DOMParser, etc.)",
+        "Create bunfig.toml in project root with [test] preload pointing to test/setup.ts",
+        "Update package.json test script from placeholder to 'bun test'",
+        "Verify setup by creating a minimal test file that uses DOMParser and running bun test"
+      ],
+      "passes": true,
+      "notes": "Bun's built-in test runner is Jest-compatible, fast, and works with TypeScript out of the box. happy-dom provides the browser APIs needed for clipboard-parser.ts (DOMParser, Document, etc.) and DOMPurify."
+    },
+    {
+      "id": "clipboard-tests-009",
+      "category": "testing",
+      "priority": 2,
+      "description": "Add edge case tests for clipboard parsing branch coverage",
+      "steps": [
+        "Test sanitizeHtml() preserves rel attribute on links",
+        "Test parseHtmlToBlocks() handles standalone <code> outside <pre> (becomes paragraph)",
+        "Test parseHtmlToBlocks() handles <pre> without nested <code> element",
+        "Test parseHtmlToBlocks() extracts language from highlight-* class prefix",
+        "Test parseHtmlToBlocks() extracts attribution from blockquote with <footer>",
+        "Test parseHtmlToBlocks() accepts http:// URLs (not just https://)",
+        "Test parsePlainTextToBlocks() escapes single quotes to &#39;"
+      ],
+      "passes": true,
+      "notes": "Fills gaps identified in test review: untested code branches and config options.",
+      "dependsOn": ["clipboard-tests-007"]
+    }
+  ]
+}
