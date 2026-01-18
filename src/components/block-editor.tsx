@@ -20,7 +20,10 @@ import { Code2, FileText, Loader2, PenLine, Plus, Save } from "lucide-react";
 import type { ClipboardEvent } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useDocumentStore } from "@/hooks/use-document-store";
-import { parseHtmlToBlocks } from "@/lib/clipboard-parser";
+import {
+  parseHtmlToBlocks,
+  parsePlainTextToBlocks,
+} from "@/lib/clipboard-parser";
 import { cn } from "@/lib/utils";
 import type { Block } from "@/types/blocks";
 import { BlockRenderer } from "./block-renderer";
@@ -226,9 +229,23 @@ export function BlockEditor({ documentId }: BlockEditorProps) {
             lastFocusedBlockIdRef.current ?? document.rootBlockIds.at(-1);
           insertGeneratedBlocks(blocks, insertAfter);
         }
+        return;
       }
-      // If no HTML, don't prevent default - let plain text paste happen naturally
-      // (Plain text fallback is handled in clipboard-plaintext-fallback-004)
+
+      // Fallback to plain text if no HTML available
+      const plainText = event.clipboardData.getData("text/plain");
+
+      if (plainText) {
+        event.preventDefault();
+
+        const blocks = parsePlainTextToBlocks(plainText);
+
+        if (blocks.length > 0) {
+          const insertAfter =
+            lastFocusedBlockIdRef.current ?? document.rootBlockIds.at(-1);
+          insertGeneratedBlocks(blocks, insertAfter);
+        }
+      }
     },
     [insertGeneratedBlocks, document.rootBlockIds]
   );

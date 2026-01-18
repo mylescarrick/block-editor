@@ -87,3 +87,43 @@
 - ✅ TypeScript passes
 - ✅ Tests pass
 - ✅ Lint passes
+
+### 2026-01-19 — clipboard-plaintext-fallback-004
+
+**Task**: Handle plain text paste when HTML is unavailable
+
+**What was done**:
+- Added `parsePlainTextToBlocks(text: string): Block[]` function to clipboard-parser.ts
+- Splits text by double newlines (handles both Unix `\n\n` and Windows `\r\n\r\n` line endings)
+- Creates paragraph block for each non-empty segment
+- Converts single newlines within paragraphs to `<br>` tags for line preservation
+- Escapes HTML special characters (`&`, `<`, `>`, `"`, `'`) to prevent XSS
+- Updated paste handler in block-editor.tsx to fallback to plain text when HTML unavailable
+- Added top-level `PARAGRAPH_BOUNDARY_REGEX` constant for lint compliance
+
+**Files changed**:
+- `src/lib/clipboard-parser.ts` (modified - added parsePlainTextToBlocks export and escapeHtml helper)
+- `src/components/block-editor.tsx` (modified - added plain text fallback to paste handler)
+
+**Verification**:
+- ✅ TypeScript passes
+- ✅ Tests pass
+- ✅ Lint passes
+
+### 2026-01-19 — clipboard-list-handling-005
+
+**Task**: Preserve list structures in pasted content
+
+**What was done**:
+- Verified this task was already completed as part of clipboard-parser-001
+- Lists (`<ul>`, `<ol>`) are preserved as full HTML inside paragraph blocks (line 205-206 of clipboard-parser.ts)
+- TipTap's StarterKit BulletList and OrderedList extensions render the lists correctly
+- Nested list structures are maintained in the preserved outerHTML
+
+**Files changed**:
+- None (already implemented)
+
+**Verification**:
+- ✅ TypeScript passes
+- ✅ Tests pass
+- ✅ Lint passes

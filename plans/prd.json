@@ -62,7 +62,7 @@
         "Preserve single newlines as <br> within paragraphs",
         "In paste handler: fallback to clipboardData.getData('text/plain') if no HTML"
       ],
-      "passes": false,
+      "passes": true,
       "notes": "Fallback for content copied from plain text editors or terminal."
     },
     {
@@ -76,7 +76,7 @@
         "Maintain list nesting structure in the preserved HTML",
         "Alternative future consideration: create dedicated list block type"
       ],
-      "passes": false,
+      "passes": true,
       "notes": "TipTap handles list rendering within blocks. Lists stay editable with proper formatting."
     },
     {

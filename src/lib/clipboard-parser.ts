@@ -96,6 +96,7 @@ export function sanitizeHtml(html: string): string {
 const HEADING_H1_H3_REGEX = /^h[1-3]$/;
 const HEADING_H4_H6_REGEX = /^h[4-6]$/;
 const LANGUAGE_CLASS_REGEX = /(?:language|lang|highlight)-(\w+)/;
+const PARAGRAPH_BOUNDARY_REGEX = /\n\s*\n|\r\n\s*\r\n/;
 
 /**
  * Parse HTML string into Block structures for the editor.
@@ -342,4 +343,47 @@ function isEmptyBlock(block: Block): boolean {
     default:
       return false;
   }
+}
+
+/**
+ * Parse plain text into Block structures.
+ * Splits by double newlines to identify paragraph boundaries.
+ * Single newlines within paragraphs become <br> tags.
+ *
+ * @param text - Plain text string to parse
+ * @returns Array of paragraph blocks
+ */
+export function parsePlainTextToBlocks(text: string): Block[] {
+  if (!text.trim()) {
+    return [];
+  }
+
+  // Split by double newlines (paragraph boundaries)
+  // Handle both Unix (\n\n) and Windows (\r\n\r\n) line endings
+  const paragraphs = text.split(PARAGRAPH_BOUNDARY_REGEX);
+
+  return paragraphs
+    .map((para) => para.trim())
+    .filter((para) => para.length > 0)
+    .map((para) => {
+      // Convert single newlines to <br> tags for line breaks within paragraphs
+      // Escape HTML entities first to prevent XSS
+      const escaped = escapeHtml(para);
+      const content = escaped.replace(/\r?\n/g, "<br>");
+      return createBlock("paragraph", { content });
+    });
+}
+
+/**
+ * Escape HTML special characters to prevent XSS.
+ */
+function escapeHtml(text: string): string {
+  const htmlEscapes: Record<string, string> = {
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;",
+  };
+  return text.replace(/[&<>"']/g, (char) => htmlEscapes[char]);
 }
