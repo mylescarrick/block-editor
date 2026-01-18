@@ -90,7 +90,7 @@
         "Log warning or show toast indicating table structure was flattened",
         "Document as known limitation for future table block type"
       ],
-      "passes": false,
+      "passes": true,
       "notes": "Deferred: Adding a table block type is a larger feature. For now, degrade gracefully."
     },
     {

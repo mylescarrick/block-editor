@@ -195,3 +195,31 @@
 - ✅ TypeScript passes
 - ✅ Tests pass (67 total: 3 infrastructure + 64 clipboard parser)
 - ✅ Lint passes
+### 2026-01-19 — clipboard-table-handling-006
+
+**Task**: Handle table content gracefully (no table block type exists)
+
+**What was done**:
+- Added `processTable()` function to `clipboard-parser.ts` that extracts table content into paragraphs
+- Each table row becomes a paragraph with cell contents joined by ` | ` separators
+- Handles `<th>` and `<td>` cells, both in `<thead>` and `<tbody>`
+- Strips nested HTML elements within cells, extracting only text content
+- Empty cells are skipped; rows with all empty cells produce no blocks
+- Added `TABLE_TAGS` constant for routing table elements
+- Added 7 comprehensive tests for table handling:
+  - Basic table rows with pipe separators
+  - Tables with header rows (thead/th)
+  - Single-cell rows (no extra pipes)
+  - Empty cell skipping
+  - Empty tables return no blocks
+  - Tables with only empty rows return no blocks
+  - Nested elements in cells extract text content
+
+**Files changed**:
+- `src/lib/clipboard-parser.ts` (added processTable function and TABLE_TAGS routing)
+- `src/lib/clipboard-parser.test.ts` (added 7 table tests, total now 74 tests)
+
+**Verification**:
+- ✅ TypeScript passes
+- ✅ Tests pass (74 total: 3 infrastructure + 71 clipboard parser)
+- ✅ Lint passes

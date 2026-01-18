@@ -480,6 +480,106 @@ describe("parseHtmlToBlocks", () => {
     });
   });
 
+  describe("tables", () => {
+    it("should flatten table rows into paragraphs with pipe separators", () => {
+      const html = `
+        <table>
+          <tr><td>Cell 1</td><td>Cell 2</td></tr>
+          <tr><td>Cell 3</td><td>Cell 4</td></tr>
+        </table>
+      `;
+      const blocks = parseHtmlToBlocks(html);
+
+      expect(blocks).toHaveLength(2);
+      expect(blocks[0].type).toBe("paragraph");
+      expect(blocks[1].type).toBe("paragraph");
+      if (isParagraph(blocks[0])) {
+        expect(blocks[0].props.content).toBe("Cell 1 | Cell 2");
+      }
+      if (isParagraph(blocks[1])) {
+        expect(blocks[1].props.content).toBe("Cell 3 | Cell 4");
+      }
+    });
+
+    it("should handle tables with header rows", () => {
+      const html = `
+        <table>
+          <thead><tr><th>Name</th><th>Age</th></tr></thead>
+          <tbody><tr><td>Alice</td><td>30</td></tr></tbody>
+        </table>
+      `;
+      const blocks = parseHtmlToBlocks(html);
+
+      expect(blocks).toHaveLength(2);
+      if (isParagraph(blocks[0])) {
+        expect(blocks[0].props.content).toBe("Name | Age");
+      }
+      if (isParagraph(blocks[1])) {
+        expect(blocks[1].props.content).toBe("Alice | 30");
+      }
+    });
+
+    it("should handle single-cell rows", () => {
+      const html = `
+        <table>
+          <tr><td>Only one cell</td></tr>
+        </table>
+      `;
+      const blocks = parseHtmlToBlocks(html);
+
+      expect(blocks).toHaveLength(1);
+      if (isParagraph(blocks[0])) {
+        expect(blocks[0].props.content).toBe("Only one cell");
+      }
+    });
+
+    it("should skip empty cells in table rows", () => {
+      const html = `
+        <table>
+          <tr><td>Value</td><td></td><td>Other</td></tr>
+        </table>
+      `;
+      const blocks = parseHtmlToBlocks(html);
+
+      expect(blocks).toHaveLength(1);
+      if (isParagraph(blocks[0])) {
+        expect(blocks[0].props.content).toBe("Value | Other");
+      }
+    });
+
+    it("should handle empty tables gracefully", () => {
+      const html = "<table></table>";
+      const blocks = parseHtmlToBlocks(html);
+
+      expect(blocks).toHaveLength(0);
+    });
+
+    it("should handle tables with only empty rows", () => {
+      const html = `
+        <table>
+          <tr><td></td><td></td></tr>
+        </table>
+      `;
+      const blocks = parseHtmlToBlocks(html);
+
+      expect(blocks).toHaveLength(0);
+    });
+
+    it("should extract text content from cells with nested elements", () => {
+      const html = `
+        <table>
+          <tr><td><strong>Bold</strong> text</td><td><a href="#">Link</a></td></tr>
+        </table>
+      `;
+      const blocks = parseHtmlToBlocks(html);
+
+      expect(blocks).toHaveLength(1);
+      if (isParagraph(blocks[0])) {
+        expect(blocks[0].props.content).toBe("Bold text | Link");
+      }
+    });
+  });
+
   describe("inline formatting", () => {
     it("should preserve bold formatting in paragraphs", () => {
       const html = "<p>This is <strong>bold</strong> text</p>";

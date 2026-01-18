@@ -162,6 +162,7 @@ function processNode(node: Node): Block[] {
 const CONTAINER_TAGS = new Set(["div", "section", "article", "main"]);
 const INLINE_TAGS = new Set(["span", "a", "strong", "em", "b", "i", "u"]);
 const LIST_TAGS = new Set(["ul", "ol"]);
+const TABLE_TAGS = new Set(["table"]);
 
 /**
  * Process an element node and convert to appropriate block type(s).
@@ -203,6 +204,9 @@ function processElement(element: Element): Block[] {
   }
   if (LIST_TAGS.has(tagName)) {
     return [createBlock("paragraph", { content: element.outerHTML })];
+  }
+  if (TABLE_TAGS.has(tagName)) {
+    return processTable(element);
   }
   if (CONTAINER_TAGS.has(tagName)) {
     return processChildren(element);
@@ -283,6 +287,33 @@ function processFigure(element: Element): Block[] {
     }
   }
   return processChildren(element);
+}
+
+/**
+ * Process table elements by extracting cell content.
+ * Since there's no table block type, we flatten the content into paragraphs
+ * with cells joined by ' | ' separators to preserve some structure.
+ */
+function processTable(element: Element): Block[] {
+  const blocks: Block[] = [];
+  const rows = element.querySelectorAll("tr");
+
+  for (const row of Array.from(rows)) {
+    const cells = row.querySelectorAll("th, td");
+    if (cells.length > 0) {
+      const cellContents = Array.from(cells)
+        .map((cell) => cell.textContent?.trim() || "")
+        .filter((text) => text.length > 0);
+
+      if (cellContents.length > 0) {
+        const content = cellContents.join(" | ");
+        blocks.push(createBlock("paragraph", { content }));
+      }
+    }
+  }
+
+  // If no rows extracted, return empty (will be filtered out)
+  return blocks;
 }
 
 /**
