@@ -65,3 +65,25 @@
 - ✅ TypeScript passes
 - ✅ Tests pass
 - ✅ Lint passes
+
+### 2026-01-19 — clipboard-paste-handler-003
+
+**Task**: Add paste event handler to block editor component
+
+**What was done**:
+- Added `onPaste` handler to the main editor wrapper div in `block-editor.tsx`
+- Implemented paste detection that checks if target is inside a TipTap editor (contenteditable/ProseMirror) and lets TipTap handle native paste
+- Reads HTML content from clipboard via `clipboardData.getData('text/html')`
+- If HTML is available, parses it using `parseHtmlToBlocks()` and inserts blocks via `insertGeneratedBlocks()`
+- Added focus tracking with `useRef` to track last focused block for accurate insertion position
+- Added `onFocusCapture` handler on block wrappers to update the last focused block ID
+- Prevents default only when we handle the paste ourselves (HTML available)
+- Plain text fallback deferred to clipboard-plaintext-fallback-004 task
+
+**Files changed**:
+- `src/components/block-editor.tsx` (modified - added paste handler, focus tracking, imports)
+
+**Verification**:
+- ✅ TypeScript passes
+- ✅ Tests pass
+- ✅ Lint passes

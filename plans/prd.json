@@ -47,7 +47,7 @@
         "Prevent default only when handling the paste ourselves",
         "Track insertAfterBlockId for insertion position (use last focused block or append to end)"
       ],
-      "passes": false,
+      "passes": true,
       "notes": "Key UX: don't interfere with TipTap's native paste when editing inside a text block."
     },
     {

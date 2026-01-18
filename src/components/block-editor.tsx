@@ -17,8 +17,10 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Code2, FileText, Loader2, PenLine, Plus, Save } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import type { ClipboardEvent } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useDocumentStore } from "@/hooks/use-document-store";
+import { parseHtmlToBlocks } from "@/lib/clipboard-parser";
 import { cn } from "@/lib/utils";
 import type { Block } from "@/types/blocks";
 import { BlockRenderer } from "./block-renderer";
@@ -189,6 +191,48 @@ export function BlockEditor({ documentId }: BlockEditorProps) {
     [insertGeneratedBlocks, insertAfterBlockId]
   );
 
+  // Track last focused block for paste insertion position
+  const lastFocusedBlockIdRef = useRef<string | undefined>(undefined);
+
+  // Update last focused block when clicking on blocks
+  const handleBlockFocus = useCallback((blockId: string) => {
+    lastFocusedBlockIdRef.current = blockId;
+  }, []);
+
+  // Handle paste events from clipboard
+  const handlePaste = useCallback(
+    (event: ClipboardEvent<HTMLDivElement>) => {
+      const target = event.target as HTMLElement;
+
+      // If we're inside a TipTap editor (contenteditable), let TipTap handle the paste
+      const isInEditor =
+        target.contentEditable === "true" || target.closest(".ProseMirror");
+
+      if (isInEditor) {
+        return;
+      }
+
+      // Get HTML content from clipboard
+      const html = event.clipboardData.getData("text/html");
+
+      if (html) {
+        event.preventDefault();
+
+        const blocks = parseHtmlToBlocks(html);
+
+        if (blocks.length > 0) {
+          // Determine insertion position: use last focused block or append to end
+          const insertAfter =
+            lastFocusedBlockIdRef.current ?? document.rootBlockIds.at(-1);
+          insertGeneratedBlocks(blocks, insertAfter);
+        }
+      }
+      // If no HTML, don't prevent default - let plain text paste happen naturally
+      // (Plain text fallback is handled in clipboard-plaintext-fallback-004)
+    },
+    [insertGeneratedBlocks, document.rootBlockIds]
+  );
+
   // Render a block by ID (used for column children)
   const renderBlockById = useCallback(
     (
@@ -224,7 +268,10 @@ export function BlockEditor({ documentId }: BlockEditorProps) {
   }
 
   return (
-    <div className="min-h-screen bg-surface-50 dark:bg-surface-900">
+    <div
+      className="min-h-screen bg-surface-50 dark:bg-surface-900"
+      onPaste={handlePaste}
+    >
       {/* Header */}
       <header className="sticky top-0 z-30 border-surface-200 border-b bg-white/80 backdrop-blur-xs dark:border-surface-800 dark:bg-surface-900/80">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-4">
@@ -295,14 +342,16 @@ export function BlockEditor({ documentId }: BlockEditorProps) {
                     return (
                       <SortableBlock id={blockId} key={blockId}>
                         {(dragHandleProps) => (
-                          <BlockRenderer
-                            block={block}
-                            dragHandleProps={dragHandleProps}
-                            onDelete={() => removeBlock(blockId)}
-                            onDuplicate={() => duplicateBlock(blockId)}
-                            onUpdate={(props) => updateBlock(blockId, props)}
-                            renderBlock={renderBlockById}
-                          />
+                          <div onFocusCapture={() => handleBlockFocus(blockId)}>
+                            <BlockRenderer
+                              block={block}
+                              dragHandleProps={dragHandleProps}
+                              onDelete={() => removeBlock(blockId)}
+                              onDuplicate={() => duplicateBlock(blockId)}
+                              onUpdate={(props) => updateBlock(blockId, props)}
+                              renderBlock={renderBlockById}
+                            />
+                          </div>
                         )}
                       </SortableBlock>
                     );
