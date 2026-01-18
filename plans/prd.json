@@ -32,7 +32,7 @@
         "Apply prose-like base styles to container for consistent typography",
         "Add visual distinction from editor (e.g., subtle background, border, or shadow)"
       ],
-      "passes": false,
+      "passes": true,
       "notes": "Follow pattern from json-preview.tsx. No copy button needed per requirements.",
       "dependsOn": ["html-renderer-001"]
     },

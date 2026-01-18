@@ -42,4 +42,28 @@
 - ✅ Tests pass (74 existing tests)
 - ✅ Lint passes
 
+---
+
+### 2026-01-19 — html-preview-component-002
+
+**Task**: Create HtmlPreview component for rendered document view
+
+**What was done**:
+- Created `src/components/html-preview.tsx` following pattern from `json-preview.tsx`
+- Accepts `document: BlockDocument` and optional `className` props
+- Calls `documentToHtml()` to generate full HTML string
+- Renders HTML using `dangerouslySetInnerHTML` with biome-ignore comment for security lint rule
+- Applied prose-like Tailwind classes for consistent typography with dark mode support
+- Added visual distinction with subtle background (`bg-surface-50`/`bg-surface-900`), border, and shadow
+- Includes header showing "HTML Preview" title and block count
+- Includes empty state message when document has no blocks
+
+**Files changed**:
+- `src/components/html-preview.tsx` (new file)
+
+**Verification**:
+- ✅ TypeScript passes
+- ✅ Tests pass (74 existing tests)
+- ✅ Lint passes
+
 <!-- Log entries will be added below as tasks are completed -->
