@@ -406,7 +406,7 @@ export function CommandPalette({
                           "flex w-full items-center gap-3 rounded-lg px-2 py-2",
                           "text-left transition-colors",
                           globalIndex === selectedIndex
-                            ? "bg-accent/10 text-accent"
+                            ? "bg-accent/10"
                             : "hover:bg-surface-100 dark:hover:bg-surface-700"
                         )}
                         key={cmd.id}
@@ -424,16 +424,23 @@ export function CommandPalette({
                             "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg",
                             globalIndex === selectedIndex
                               ? "bg-accent text-white"
-                              : "bg-surface-100 text-surface-500 dark:bg-surface-700"
+                              : "bg-surface-100 text-surface-600 dark:bg-surface-700 dark:text-surface-300"
                           )}
                         >
                           <Icon className="h-4 w-4" />
                         </div>
                         <div className="min-w-0">
-                          <div className="truncate font-medium text-sm">
+                          <div
+                            className={cn(
+                              "truncate font-medium text-sm",
+                              globalIndex === selectedIndex
+                                ? "text-accent"
+                                : "text-surface-700 dark:text-surface-200"
+                            )}
+                          >
                             {cmd.label}
                           </div>
-                          <div className="truncate text-surface-400 text-xs">
+                          <div className="truncate text-surface-500 text-xs">
                             {cmd.description}
                           </div>
                         </div>
