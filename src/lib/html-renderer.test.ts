@@ -214,25 +214,25 @@ describe("blockToHtml - paragraph", () => {
 // =============================================================================
 
 describe("blockToHtml - heading", () => {
-  it("should render h1 with text-3xl font-bold", () => {
+  it("should render h1 with text-4xl font-display", () => {
     const block = createHeadingBlock("Main Title", "h1");
     const html = blockToHtml(block, noopGetBlock);
 
     expect(html).toContain("<h1");
     expect(html).toContain("</h1>");
-    expect(html).toContain("text-3xl");
-    expect(html).toContain("font-bold");
+    expect(html).toContain("text-4xl");
+    expect(html).toContain("font-display");
     expect(html).toContain("Main Title");
   });
 
-  it("should render h2 with text-2xl font-bold", () => {
+  it("should render h2 with text-2xl font-semibold", () => {
     const block = createHeadingBlock("Subtitle", "h2");
     const html = blockToHtml(block, noopGetBlock);
 
     expect(html).toContain("<h2");
     expect(html).toContain("</h2>");
     expect(html).toContain("text-2xl");
-    expect(html).toContain("font-bold");
+    expect(html).toContain("font-semibold");
   });
 
   it("should render h3 with text-xl font-semibold", () => {

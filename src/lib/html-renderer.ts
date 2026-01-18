@@ -111,8 +111,8 @@ function renderHeading(
 ): string {
   const alignClass = getAlignmentClass(align);
   const levelClasses = {
-    h1: "text-3xl font-bold mb-6 mt-8",
-    h2: "text-2xl font-bold mb-4 mt-6",
+    h1: "text-4xl font-display font-normal tracking-tight mb-6 mt-8",
+    h2: "text-2xl font-semibold tracking-tight mb-4 mt-6",
     h3: "text-xl font-semibold mb-3 mt-4",
   };
   const levelClass = levelClasses[level];
