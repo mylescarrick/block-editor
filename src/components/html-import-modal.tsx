@@ -1,4 +1,5 @@
 import { FileCode } from "lucide-react";
+import type { ClipboardEvent } from "react";
 import { useCallback, useMemo, useState } from "react";
 import { parseHtmlToBlocks } from "@/lib/clipboard-parser";
 import { cn } from "@/lib/utils";
@@ -48,6 +49,21 @@ export function HtmlImportModal({
     onOpenChange(false);
   }, [onOpenChange]);
 
+  // Handle paste to extract HTML content from clipboard
+  const handlePaste = useCallback(
+    (event: ClipboardEvent<HTMLTextAreaElement>) => {
+      const html = event.clipboardData.getData("text/html");
+
+      if (html) {
+        // Prevent default paste and use HTML content instead
+        event.preventDefault();
+        setHtmlContent(html);
+      }
+      // If no HTML, let the default paste behavior handle plain text
+    },
+    []
+  );
+
   // Reset content when modal opens/closes
   const handleOpenChange = useCallback(
     (newOpen: boolean) => {
@@ -84,6 +100,7 @@ export function HtmlImportModal({
               "focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
             )}
             onChange={(e) => setHtmlContent(e.target.value)}
+            onPaste={handlePaste}
             placeholder="<h1>Your HTML here...</h1>
 <p>Paste formatted content from web pages, documents, or write HTML directly.</p>"
             value={htmlContent}

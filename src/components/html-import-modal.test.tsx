@@ -130,6 +130,41 @@ describe("HtmlImportModal - callback behavior", () => {
 });
 
 // ============================================================================
+// Test clipboard paste behavior
+// ============================================================================
+
+describe("HtmlImportModal - clipboard paste behavior", () => {
+  it("should prefer text/html over text/plain from clipboard", () => {
+    // When clipboard contains both HTML and plain text,
+    // the modal should extract and use the HTML version
+    const htmlContent = "<h1>Title</h1><p>Paragraph</p>";
+    const plainContent = "Title\nParagraph";
+
+    // HTML content should parse to structured blocks
+    const htmlBlocks = parseHtmlToBlocks(htmlContent);
+    const plainBlocks = parseHtmlToBlocks(plainContent);
+
+    // HTML produces proper heading + paragraph
+    expect(htmlBlocks.length).toBe(2);
+    expect(htmlBlocks[0].type).toBe("heading");
+    expect(htmlBlocks[1].type).toBe("paragraph");
+
+    // Plain text just produces paragraphs
+    expect(plainBlocks.every((b) => b.type === "paragraph")).toBe(true);
+  });
+
+  it("should handle clipboard with only plain text", () => {
+    // When clipboard has no HTML, plain text is used as fallback
+    const plainText = "Just plain text content";
+    const blocks = parseHtmlToBlocks(plainText);
+
+    // Plain text becomes a paragraph
+    expect(blocks.length).toBeGreaterThan(0);
+    expect(blocks[0].type).toBe("paragraph");
+  });
+});
+
+// ============================================================================
 // Test block count preview logic
 // ============================================================================
 

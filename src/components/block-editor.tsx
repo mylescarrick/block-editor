@@ -229,11 +229,14 @@ export function BlockEditor({ documentId }: BlockEditorProps) {
     (event: ClipboardEvent<HTMLDivElement>) => {
       const target = event.target as HTMLElement;
 
-      // If we're inside a TipTap editor (contenteditable), let TipTap handle the paste
-      const isInEditor =
-        target.contentEditable === "true" || target.closest(".ProseMirror");
+      // If we're inside an input, textarea, or TipTap editor, let that element handle the paste
+      const isInFormElement =
+        target.tagName === "TEXTAREA" ||
+        target.tagName === "INPUT" ||
+        target.contentEditable === "true" ||
+        target.closest(".ProseMirror");
 
-      if (isInEditor) {
+      if (isInFormElement) {
         return;
       }
 
