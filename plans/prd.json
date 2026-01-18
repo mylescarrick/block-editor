@@ -63,7 +63,7 @@
         "Test documentToHtml() combines multiple blocks correctly",
         "Test edge cases: empty document, missing child blocks in columns"
       ],
-      "passes": false,
+      "passes": true,
       "notes": "Pure functions are easy to unit test. Use createBlock() helper for test fixtures.",
       "dependsOn": ["html-renderer-001"]
     },

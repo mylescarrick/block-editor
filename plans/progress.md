@@ -87,3 +87,37 @@
 - ✅ TypeScript passes
 - ✅ Tests pass (74 existing tests)
 - ✅ Lint passes
+
+---
+
+### 2026-01-19 — html-renderer-tests-004
+
+**Task**: Add unit tests for HTML rendering functions
+
+**What was done**:
+- Created `src/lib/html-renderer.test.ts` with 47 comprehensive unit tests
+- Created helper functions for test fixtures: `createParagraphBlock`, `createHeadingBlock`, `createQuoteBlock`, `createImageBlock`, `createCodeBlock`, `createDividerBlock`, `createCalloutBlock`, `createColumnsBlock`, `createDocument`
+- Tested `blockToHtml()` for all 8 block types:
+  - **paragraph**: text-base styling, alignment classes (left/center/right), HTML content preservation
+  - **heading**: semantic h1/h2/h3 elements, text-3xl/2xl/xl font-bold/semibold, alignment
+  - **quote**: blockquote with border-l-4 italic styling, optional cite element for attribution
+  - **image**: figure with img, figcaption when caption provided, width classes (max-w-xs/md/2xl/w-full), HTML escaping
+  - **code**: pre/code with dark theme (bg-gray-900 text-gray-100), language class, content/language escaping
+  - **divider**: hr element with border-solid/dashed/dotted styles
+  - **callout**: aside element with variant colors (info=blue, warning=yellow, success=green, error=red), optional emoji
+  - **columns**: flex container, recursive child rendering, correct flex-basis for layouts (1-1, 1-2, 2-1, 1-1-1), empty column handling
+- Tested `documentToHtml()`:
+  - Multiple blocks combined correctly
+  - Block order preserved from rootBlockIds
+  - Empty document returns empty string
+  - Missing blocks in rootBlockIds skipped gracefully
+  - Columns with nested children rendered correctly
+  - All 7 block types in single document
+
+**Files changed**:
+- `src/lib/html-renderer.test.ts` (new file - 47 tests)
+
+**Verification**:
+- ✅ TypeScript passes
+- ✅ Tests pass (121 tests: 74 existing + 47 new)
+- ✅ Lint passes
