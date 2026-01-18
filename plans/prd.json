@@ -106,7 +106,24 @@
         "Test edge cases: empty input, whitespace-only, malformed HTML"
       ],
       "passes": false,
-      "notes": "Parser is pure function, easy to unit test. Use real-world HTML samples from Word/Google Docs."
+      "notes": "Parser is pure function, easy to unit test. Use real-world HTML samples from Word/Google Docs.",
+      "dependsOn": ["testing-infrastructure-008"]
+    },
+    {
+      "id": "testing-infrastructure-008",
+      "category": "testing",
+      "priority": 1,
+      "description": "Set up Bun test runner with DOM mocking for browser API support",
+      "steps": [
+        "Install happy-dom for DOM polyfill: bun add -d happy-dom",
+        "Install Bun types for test globals: bun add -d @types/bun",
+        "Create test/setup.ts that imports happy-dom and registers it globally (Window, Document, DOMParser, etc.)",
+        "Create bunfig.toml in project root with [test] preload pointing to test/setup.ts",
+        "Update package.json test script from placeholder to 'bun test'",
+        "Verify setup by creating a minimal test file that uses DOMParser and running bun test"
+      ],
+      "passes": true,
+      "notes": "Bun's built-in test runner is Jest-compatible, fast, and works with TypeScript out of the box. happy-dom provides the browser APIs needed for clipboard-parser.ts (DOMParser, Document, etc.) and DOMPurify."
     }
   ]
 }

@@ -127,3 +127,27 @@
 - ✅ TypeScript passes
 - ✅ Tests pass
 - ✅ Lint passes
+
+### 2026-01-19 — testing-infrastructure-008
+
+**Task**: Set up Bun test runner with DOM mocking for browser API support
+
+**What was done**:
+- Installed `@happy-dom/global-registrator` (v20.3.1) for DOM polyfill per official Bun docs
+- Installed `@types/bun` (v1.3.6) for test globals TypeScript support
+- Created `test/setup.ts` that imports and registers happy-dom globally using `GlobalRegistrator.register()`
+- Created `bunfig.toml` with `[test] preload = ["./test/setup.ts"]` configuration
+- Updated `package.json` test script from placeholder to `bun test`
+- Created `test/setup.test.ts` to verify DOMParser, Document, and Window are available globally
+
+**Files changed**:
+- `test/setup.ts` (new file)
+- `test/setup.test.ts` (new file)
+- `bunfig.toml` (new file)
+- `package.json` (modified - test script)
+- `bun.lock` (updated)
+
+**Verification**:
+- ✅ TypeScript passes
+- ✅ Tests pass
+- ✅ Lint passes
