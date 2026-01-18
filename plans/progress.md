@@ -171,3 +171,27 @@
 - ✅ TypeScript passes
 - ✅ Tests pass (60 total: 3 infrastructure + 57 clipboard parser)
 - ✅ Lint passes
+
+### 2026-01-19 — clipboard-tests-009
+
+**Task**: Add edge case tests for clipboard parsing branch coverage
+
+**What was done**:
+- Added 7 additional test cases to `src/lib/clipboard-parser.test.ts` to cover previously untested branches
+- Tests for `sanitizeHtml()`: preserves rel attribute on links (validates ALLOWED_ATTRS config)
+- Tests for `parseHtmlToBlocks()`:
+  - Standalone `<code>` outside `<pre>` becomes paragraph with preserved HTML (intentional design for inline code)
+  - `<pre>` without nested `<code>` element still creates code block
+  - Language extraction from `highlight-*` class prefix (third regex branch)
+  - Attribution extraction from blockquote with `<footer>` element (alternative to `<cite>`)
+  - http:// URLs accepted for images (not just https://)
+- Tests for `parsePlainTextToBlocks()`: single quotes escaped to `&#39;` (validates escapeHtml helper)
+- Corrected test expectation: standalone `<code>` is intentionally treated as inline code wrapped in paragraph, not a code block
+
+**Files changed**:
+- `src/lib/clipboard-parser.test.ts` (added 7 edge case tests, total now 67 tests)
+
+**Verification**:
+- ✅ TypeScript passes
+- ✅ Tests pass (67 total: 3 infrastructure + 64 clipboard parser)
+- ✅ Lint passes

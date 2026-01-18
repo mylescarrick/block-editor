@@ -150,6 +150,16 @@ describe("sanitizeHtml", () => {
     expect(sanitizeHtml("")).toBe("");
     expect(sanitizeHtml("   ")).toBe("   ");
   });
+
+  // Edge case tests (clipboard-tests-009)
+  it("should preserve rel attribute on links", () => {
+    const html =
+      '<a href="https://example.com" target="_blank" rel="noopener">External</a>';
+    const result = sanitizeHtml(html);
+
+    expect(result).toContain('rel="noopener"');
+    expect(result).toContain('target="_blank"');
+  });
 });
 
 // =============================================================================
@@ -256,6 +266,19 @@ describe("parseHtmlToBlocks", () => {
       }
     });
 
+    // Edge case test (clipboard-tests-009)
+    it("should extract attribution from blockquotes with footer", () => {
+      const html =
+        "<blockquote><p>A wise saying</p><footer>— Source Author</footer></blockquote>";
+      const blocks = parseHtmlToBlocks(html);
+
+      expect(blocks).toHaveLength(1);
+      expect(blocks[0].type).toBe("quote");
+      if (isQuote(blocks[0])) {
+        expect(blocks[0].props.attribution).toBe("— Source Author");
+      }
+    });
+
     it("should parse hr as divider", () => {
       const html = "<p>Before</p><hr><p>After</p>";
       const blocks = parseHtmlToBlocks(html);
@@ -309,6 +332,43 @@ describe("parseHtmlToBlocks", () => {
         expect(blocks[0].props.language).toBe("plaintext");
       }
     });
+
+    // Edge case tests (clipboard-tests-009)
+    it("should handle standalone code element as paragraph with preserved HTML", () => {
+      const html = "<code>inline code block</code>";
+      const blocks = parseHtmlToBlocks(html);
+
+      // Standalone <code> without <pre> is treated as inline code and wrapped in paragraph
+      expect(blocks).toHaveLength(1);
+      expect(blocks[0].type).toBe("paragraph");
+      if (isParagraph(blocks[0])) {
+        expect(blocks[0].props.content).toContain("<code>");
+        expect(blocks[0].props.content).toContain("inline code block");
+      }
+    });
+
+    it("should handle pre element without code child", () => {
+      const html = "<pre>preformatted text only</pre>";
+      const blocks = parseHtmlToBlocks(html);
+
+      expect(blocks).toHaveLength(1);
+      expect(blocks[0].type).toBe("code");
+      if (isCode(blocks[0])) {
+        expect(blocks[0].props.code).toBe("preformatted text only");
+      }
+    });
+
+    it("should extract language from highlight-* class prefix", () => {
+      const html =
+        '<pre><code class="highlight-ruby">puts "hello"</code></pre>';
+      const blocks = parseHtmlToBlocks(html);
+
+      expect(blocks).toHaveLength(1);
+      expect(blocks[0].type).toBe("code");
+      if (isCode(blocks[0])) {
+        expect(blocks[0].props.language).toBe("ruby");
+      }
+    });
   });
 
   describe("images", () => {
@@ -321,6 +381,19 @@ describe("parseHtmlToBlocks", () => {
       if (isImage(blocks[0])) {
         expect(blocks[0].props.src).toBe("https://example.com/image.png");
         expect(blocks[0].props.alt).toBe("Test image");
+      }
+    });
+
+    // Edge case test (clipboard-tests-009)
+    it("should parse img elements with http URLs", () => {
+      const html = '<img src="http://example.com/image.png" alt="HTTP image">';
+      const blocks = parseHtmlToBlocks(html);
+
+      expect(blocks).toHaveLength(1);
+      expect(blocks[0].type).toBe("image");
+      if (isImage(blocks[0])) {
+        expect(blocks[0].props.src).toBe("http://example.com/image.png");
+        expect(blocks[0].props.alt).toBe("HTTP image");
       }
     });
 
@@ -645,6 +718,16 @@ describe("parsePlainTextToBlocks", () => {
 
     if (isParagraph(blocks[0])) {
       expect(blocks[0].props.content).toContain("&quot;");
+    }
+  });
+
+  // Edge case test (clipboard-tests-009)
+  it("should escape single quotes to &#39;", () => {
+    const text = "It's a test";
+    const blocks = parsePlainTextToBlocks(text);
+
+    if (isParagraph(blocks[0])) {
+      expect(blocks[0].props.content).toBe("It&#39;s a test");
     }
   });
 

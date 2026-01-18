@@ -124,6 +124,24 @@
       ],
       "passes": true,
       "notes": "Bun's built-in test runner is Jest-compatible, fast, and works with TypeScript out of the box. happy-dom provides the browser APIs needed for clipboard-parser.ts (DOMParser, Document, etc.) and DOMPurify."
+    },
+    {
+      "id": "clipboard-tests-009",
+      "category": "testing",
+      "priority": 2,
+      "description": "Add edge case tests for clipboard parsing branch coverage",
+      "steps": [
+        "Test sanitizeHtml() preserves rel attribute on links",
+        "Test parseHtmlToBlocks() handles standalone <code> outside <pre> (becomes paragraph)",
+        "Test parseHtmlToBlocks() handles <pre> without nested <code> element",
+        "Test parseHtmlToBlocks() extracts language from highlight-* class prefix",
+        "Test parseHtmlToBlocks() extracts attribution from blockquote with <footer>",
+        "Test parseHtmlToBlocks() accepts http:// URLs (not just https://)",
+        "Test parsePlainTextToBlocks() escapes single quotes to &#39;"
+      ],
+      "passes": true,
+      "notes": "Fills gaps identified in test review: untested code branches and config options.",
+      "dependsOn": ["clipboard-tests-007"]
     }
   ]
 }
