@@ -105,7 +105,7 @@
         "Test parsePlainTextToBlocks() handles newline variations correctly",
         "Test edge cases: empty input, whitespace-only, malformed HTML"
       ],
-      "passes": false,
+      "passes": true,
       "notes": "Parser is pure function, easy to unit test. Use real-world HTML samples from Word/Google Docs.",
       "dependsOn": ["testing-infrastructure-008"]
     },

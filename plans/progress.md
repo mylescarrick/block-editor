@@ -151,3 +151,23 @@
 - ✅ TypeScript passes
 - ✅ Tests pass
 - ✅ Lint passes
+
+### 2026-01-19 — clipboard-tests-007
+
+**Task**: Add unit tests for clipboard parsing functions
+
+**What was done**:
+- Created comprehensive test file at `src/lib/clipboard-parser.test.ts` with 57 test cases
+- Tests for `sanitizeHtml()`: preserves safe tags (p, h1-h6, lists, links, images), strips dangerous content (onclick, onerror, javascript: URLs, style attributes, data-* attributes, script tags)
+- Tests for `parseHtmlToBlocks()`: paragraphs, multiple paragraphs, h1-h6 headings (h4-h6 convert to h3), blockquotes with attribution, dividers, code blocks with language extraction, images with https/data URLs, figure elements with captions, lists preservation, inline formatting, container flattening, mixed content
+- Tests for `parsePlainTextToBlocks()`: simple text, double newline paragraph splitting, Windows CRLF handling, single newline to `<br>` conversion, HTML escaping (XSS prevention), ampersand/quote escaping, empty input handling, whitespace trimming
+- Edge cases: empty input, whitespace-only, malformed HTML, text nodes without wrappers, unique ID generation
+- Added type guards (`isParagraph`, `isHeading`, `isQuote`, `isDivider`, `isCode`, `isImage`) for type-safe assertions on discriminated union Block types
+
+**Files changed**:
+- `src/lib/clipboard-parser.test.ts` (new file - 57 test cases across 3 function test suites)
+
+**Verification**:
+- ✅ TypeScript passes
+- ✅ Tests pass (60 total: 3 infrastructure + 57 clipboard parser)
+- ✅ Lint passes
