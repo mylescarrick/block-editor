@@ -13,8 +13,12 @@ Our approach: **one Zod schema governs all content**. Whether a block is typed b
 - **Unified Schema** — Zod schemas define block types, used by both editor and AI generation
 - **Visual Editing** — Notion-like block editor with rich text, drag-and-drop, slash commands
 - **AI Generation** — Stubbed AI that generates valid, editable blocks from natural language
+- **Clipboard Paste** — Paste HTML from web pages, Word, or Google Docs and auto-convert to editable blocks
+- **HTML Import** — Modal for manually importing HTML content with real-time block preview
+- **HTML Preview** — Live rendered view of your document with Tailwind typography
 - **Structure Preview** — Tab to view the underlying JSON structure in real-time
 - **Auto-Save** — Debounced persistence with visual status indicators
+- **Security** — DOMPurify sanitization strips scripts, event handlers, and dangerous content
 
 ---
 
@@ -65,20 +69,26 @@ Inspired by [json-render](https://json-render.dev/), AI generation is constraine
 ```
 src/
 ├── components/
-│   ├── block-editor.tsx      # Main editor with tabs (Editor/Structure)
+│   ├── block-editor.tsx      # Main editor with tabs (Editor/Preview/Structure)
 │   ├── block-renderer.tsx    # Individual block renderers
 │   ├── command-palette.tsx   # Slash command menu + AI prompt
+│   ├── html-import-modal.tsx # Modal for importing HTML content
+│   ├── html-preview.tsx      # Preview tab: rendered HTML view
 │   ├── json-preview.tsx      # Structure tab: JSON view + validation
 │   ├── rich-text-editor.tsx  # TipTap-based text editing
-│   └── ui/                   # shadcn/ui components
+│   └── ui/                   # shadcn/ui components (tabs, dialog)
 ├── hooks/
 │   └── use-document-store.ts # Document state, CRUD operations, auto-save
 ├── lib/
 │   ├── ai.ts                 # AI generation (stub with mock responses)
+│   ├── clipboard-parser.ts   # HTML/plain text → blocks conversion
+│   ├── html-renderer.ts      # Blocks → semantic HTML conversion
 │   ├── persistence.ts        # IndexedDB persistence (stub)
 │   └── utils.ts              # Block creation, cloning, layout helpers
 └── types/
     └── blocks.ts             # Zod schemas and TypeScript types
+test/
+└── setup.ts                  # happy-dom registration for DOM APIs
 ```
 
 ### Key Components
@@ -90,6 +100,10 @@ src/
 | `CommandPalette` | Slash menu for block insertion and AI prompts |
 | `RichTextEditor` | TipTap wrapper with bubble menu for formatting |
 | `JsonPreview` | Real-time JSON view with schema validation badge |
+| `HtmlPreview` | Rendered HTML preview with Tailwind prose styling |
+| `HtmlImportModal` | Dialog for importing HTML with block count preview |
+| `clipboardParser` | Converts pasted HTML/text to blocks with sanitization |
+| `htmlRenderer` | Converts blocks to semantic HTML with Tailwind classes |
 
 ---
 
@@ -106,9 +120,30 @@ bun install && bun run dev
 | Format | Select text → bubble menu |
 | Reorder | Drag grip handle |
 | Duplicate/Delete | Hover → actions menu |
+| Paste content | `Cmd/Ctrl+V` outside a text block |
+| Import HTML | "Import HTML" button → paste in modal |
+| View preview | "Preview" tab |
 | View JSON | "Structure" tab |
 
 **AI prompts (stubbed):** `"Add an intro"`, `"Two-column layout"`, `"Code example"`, `"Feature list"`
+
+### Clipboard Paste Behavior
+
+When pasting outside a text block, HTML content is automatically converted:
+
+| HTML Element | Block Type |
+|--------------|------------|
+| `<h1>`–`<h3>` | heading (level matches) |
+| `<h4>`–`<h6>` | heading (h3) |
+| `<p>` | paragraph |
+| `<blockquote>` | quote (extracts `<cite>`/`<footer>` as attribution) |
+| `<pre><code>` | code (extracts language from class) |
+| `<hr>` | divider |
+| `<img>`, `<figure>` | image (with caption support) |
+| `<ul>`, `<ol>` | preserved as HTML in paragraph |
+| `<table>` | flattened to paragraphs with `\|` separators |
+
+Plain text fallback splits on double newlines into paragraphs.
 
 ---
 
@@ -124,8 +159,9 @@ bun install && bun run dev
      @tiptap/extension-highlight @tiptap/extension-bubble-menu @tiptap/extension-image \
      @tiptap/extension-text-align @tiptap/extension-text-style @tiptap/extension-color \
      @dnd-kit/core @dnd-kit/sortable @dnd-kit/utilities \
-     @radix-ui/react-tabs class-variance-authority clsx tailwind-merge lucide-react \
-     zod uuid
+     @radix-ui/react-tabs @radix-ui/react-dialog \
+     class-variance-authority clsx tailwind-merge lucide-react \
+     dompurify zod uuid
    ```
 3. **Import**:
    ```tsx
@@ -179,7 +215,25 @@ export async function generateBlocksFromPrompt(prompt: string): Promise<Block[]>
 | Schema | Zod |
 | DnD | DnD Kit |
 | Styling | Tailwind CSS 4 + shadcn/ui |
+| Security | DOMPurify |
+| Testing | Bun test runner + happy-dom |
 | Build | Vite |
+
+---
+
+## Testing
+
+```bash
+bun test
+```
+
+Tests use Bun's built-in test runner with [happy-dom](https://github.com/nicholashamilton/happy-dom) for browser API support (DOMParser, Window, Document). This enables testing clipboard parsing and HTML rendering without a browser.
+
+| Test Suite | Coverage |
+|------------|----------|
+| `clipboard-parser.test.ts` | HTML/text parsing, sanitization, all element types |
+| `html-renderer.test.ts` | Block-to-HTML conversion, all 8 block types |
+| `html-import-modal.test.ts` | Modal behavior, block count preview |
 
 ---
 
